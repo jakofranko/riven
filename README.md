@@ -10,7 +10,7 @@ You are given a node selection tool `Ø()`, you can type the character with `alt
 
 ### Create a node
 
-`Ø("template").create({x:2,y:2})` will create a **template** node at 2,2. 
+`Ø("template").create({x:2,y:2})` will create a **template** node at 2,2.
 
 ### Select a node
 
@@ -18,7 +18,7 @@ You are given a node selection tool `Ø()`, you can type the character with `alt
 
 ### Connect a node
 
-`Ø("template").connect("parser")` will connect the **template** node to the **parser** node. 
+`Ø("template").connect("parser")` will connect the **template** node to the **parser** node.
 
 You can also connect to **multiple nodes** at once with `Ø("template").connect(["parser","console"])`. The `Ø("template").bind("parser")` will create both a **connection and a syphon** between the 2 nodes.
 
@@ -66,3 +66,7 @@ You can group nodes into scopes with `.mesh(pos,[nodes])` to visually groups the
 This framework does nothing else, but it does this well.
 
 Enjoy.
+
+# Note about changes since 2023
+
+@jakofranko's fork of this package seeks to implement a few modernizations, optimizations, improvements, and clarifications while keeping the original spirit of Riven front of mind i.e., to be a simple, pure JavaScript library that does one thing and does it well, without relying on external packages to use. A couple of concessions will be made in order for this to become reusable, but hopefully these can be forgiven.
