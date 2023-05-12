@@ -1,15 +1,15 @@
 'use strict'
 
 RIVEN.lib.Mesh = function (id, rect, children, entry, exit) {
-  RIVEN.Node.call(this, id, rect)
+  Node.call(this, id, RIVEN, rect)
 
   const PORT_TYPES = { default: 0, input: 1, output: 2, request: 3, answer: 4, entry: 5, exit: 6 }
 
   this.glyph = ''
   this.name = 'meshnode'
 
-  this.ports.entry = new this.Port(this, 'entry', PORT_TYPES.entry)
-  this.ports.exit = new this.Port(this, 'exit', PORT_TYPES.exit)
+  this.ports.entry = new Port(this, 'entry', PORT_TYPES.entry)
+  this.ports.exit = new Port(this, 'exit', PORT_TYPES.exit)
 
   if (RIVEN.network[entry]) { this.ports.entry.connect(Ø(entry).ports.input) }
   if (RIVEN.network[exit]) { Ø(exit).ports.output.connect(this.ports.exit) }
@@ -28,7 +28,7 @@ RIVEN.lib.Mesh = function (id, rect, children, entry, exit) {
   for (const cid in children) {
     children[cid].parent = this
     this.children.push(children[cid])
-    this.update()
+    this.update() // can upate after this loop I think? No need to upate every time, since the update loop already goes through all children
   }
 
   // Re-Route SEND/RECEIVE

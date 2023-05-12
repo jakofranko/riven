@@ -3,260 +3,42 @@
 'use strict'
 
 // Globals
-// Creates a new instance of Riven. An instance of Riven
-// contains a library of instance specific nodes and functions (needed?),
+// Numeric IDs for the different Node ports
+const PORT_TYPES = {
+    default: 0,
+    input: 1,
+    output: 2,
+    request: 3,
+    answer: 4,
+    entry: 5,
+    exit: 6
+}
+
+// Creates a new instance of Riven.
+// An instance of Riven contains
+// a library of instance specific nodes and functions (needed?),
 // and the network of nodes.
 function Riven() {
     this.lib = {};
     this.network = {};
-
-    this.add = function(node) {
-        this.network[node.id] = node;
-    }
 }
 
-// Perhaps instead of making a global instance of RIVEN,
-// the selector itself could be a method? That way you could
-// have multiple instances with multiple selectors. New definition could look like this:
-// function Riven() {
-//     this.lib = {};
-//     this.network = {};
-//
-//     this.add = function(node) {
-//         this.network[node.id] = node;
-//     }
-//
-//     this.selector = function(id) {
-//         const node = this.network[id];
-//         if (!node) {
-//             console.warn(`'${id}' is not a part of the Riven network. Make sure to 'create' it, to add it.`);
-//             return new Node(id, this); // Passing `this` can allow the Node to be added to this instance of Riven
-//         }
-//
-//         return node;
-//     }
-// }
-//
-// const Ø = new Riven().selector;
-// const ß = new Riven().selector;
-const RIVEN = new Riven()
-
-// QUERY
-
-function Ø(id) {
-    return RIVEN.network[id] ? RIVEN.network[id] : new RIVEN.Node(id)
+Riven.prototype.add = function(node) {
+    this.network[node.id] = node;
 }
 
-// NODE
-// A Node prototype for the RIVEN instance of Riven (This should probably be its own prototype unless it interacts with RIVEN).
-// A Node contains a set of ports, identifying data, and utilities for displaying the node on the graph.
-// It also has a set of life cycle functions: create, request, answer, recieve, send etc.
-RIVEN.Node = function(id, rect = {
-    x: 0,
-    y: 0,
-    w: 2,
-    h: 2
-}) {
-    const PORT_TYPES = {
-        default: 0,
-        input: 1,
-        output: 2,
-        request: 3,
-        answer: 4,
-        entry: 5,
-        exit: 6
+Riven.prototype.selector = function(id) {
+    const node = this.network[id];
+    if (!node) {
+        console.warn(`'${id}' is not a part of the Riven network. Make sure to 'create' it, to add it.`);
+        return new Node(id, this); // Passing `this` can allow the Node to be added to this instance of Riven
     }
 
-    this.id = id
-    this.ports = {}
-    this.rect = rect
-    this.parent = null
-    this.children = []
-    this.label = id
-    this.name = this.constructor.name.toLowerCase()
-    this.glyph = 'M155,65 A90,90 0 0,1 245,155 A90,90 0 0,1 155,245 A90,90 0 0,1 65,155 A90,90 0 0,1 155,65 Z'
-
-    // This, combined with the create function, seem odd.
-    // I don't think these should be separate steps;
-    // As it is, calling Ø('foo') without calling the 'create'
-    // method won't do almost anything, it will just return a detached node.
-    // However, one could create "momentary" nodes that aren't part of a network,
-    // and even connect them. In fact, it seems like having a host RIVEN network
-    // is not even required to use the nodes, you just won't have any custom
-    // functionality (it seems by default all the node communication is just pass-thru),
-    // and Riven won't be able to graph your network.
-    this.setup = function(pos) {
-        this.ports.input = new this.Port(this, 'in', PORT_TYPES.input)
-        this.ports.output = new this.Port(this, 'out', PORT_TYPES.output)
-        this.ports.answer = new this.Port(this, 'answer', PORT_TYPES.answer)
-        this.ports.request = new this.Port(this, 'request', PORT_TYPES.request)
-        this.rect.x = pos.x
-        this.rect.y = pos.y
-    }
-
-    // Instead of referencing the global instance of RIVEN,
-    // perhaps the instance of Riven could be passed to the Node prototype
-    // and used here instead (allowing multiple instances of Riven to exist).
-    this.create = function(pos = {
-        x: 0,
-        y: 0
-    }, Type, ...params) {
-        if (!Type) {
-            console.warn(`Unknown NodeType for #${this.id}`);
-            return this
-        }
-        const node = new Type(this.id, rect, ...params)
-        node.setup(pos)
-        RIVEN.add(node)
-        return node
-    }
-
-    // Connect
-
-    this.connect = function(q, syphon) {
-        if (q instanceof Array) {
-            for (const id in q) {
-                this.connect(q[id], syphon)
-            }
-        } else if (Ø(q)) {
-            const port = (syphon ? this.ports.request : this.ports.output)
-            const target = syphon ? Ø(q).ports.answer : Ø(q).ports.input
-            if (!port) {
-                console.warn(`Unknown: ${q}`);
-                return
-            }
-            port.connect(target)
-        } else {
-            console.warn(`Unknown ${q}`)
-        }
-    }
-
-    this.syphon = function(q) {
-        this.connect(q, true)
-    }
-
-    this.bind = function(q) {
-        this.connect(q)
-        this.syphon(q)
-    }
-
-    // SEND/RECEIVE
-
-    this.send = function(payload) {
-        for (const routeId in this.ports.output.routes) {
-            const route = this.ports.output.routes[routeId]
-            if (!route) {
-                continue
-            }
-            route.host.receive(payload, this, route)
-        }
-    }
-
-    this.receive = function(q, origin, route) {
-        const port = this.ports.output
-        for (const routeId in port.routes) {
-            const route = port.routes[routeId]
-            if (route) {
-                route.host.receive(q, this, route)
-            }
-        }
-    }
-
-    this.bang = function() {
-        this.send(true)
-    }
-
-    // REQUEST/ANSWER
-
-    this.request = function(q) {
-        const payload = {}
-        for (const routeId in this.ports.request.routes) {
-            const route = this.ports.request.routes[routeId]
-            if (!route) {
-                continue
-            }
-            const answer = route.host.answer(q, this, route)
-            if (!answer) {
-                continue
-            }
-            payload[route.host.id] = answer
-        }
-        return payload
-    }
-
-    this.answer = function(q, origin, route) {
-        return this.request(q)
-    }
-
-    // Target
-
-    this.signal = function(target) {
-        for (const portId in this.ports) {
-            const port = this.ports[portId]
-            for (const routeId in port.routes) {
-                const route = port.routes[routeId]
-                if (!route || !route.host || route.host.id !== target.toLowerCase()) {
-                    continue
-                }
-                return route.host
-            }
-        }
-        return null
-    }
-
-    // PORT
-    // Since the host Node is passed in, there's no reason for this to
-    // be a method of Node, just like Node should not be a method of RIVEN.
-    this.Port = function(host, id, type = PORT_TYPES.default) {
-        this.host = host
-        this.id = id
-        this.type = type
-        this.routes = []
-
-        this.connect = function(port) {
-            if (!port) {
-                console.warn(`Unknown port from: ${this.host.id}`);
-                return
-            }
-            this.routes.push(port)
-        }
-    }
+    return node;
 }
 
-// Mesh
-// This should just be moved to the 'nodes' directory and exist as a custom node.
-RIVEN.lib.Mesh = function(id, rect, children) {
-    RIVEN.Node.call(this, id, rect)
-
-    this.glyph = ''
-    this.name = 'meshnode'
-
-    this.update = function() {
-        const bounds = {
-            x: 0,
-            y: 0
-        }
-        for (const id in this.children) {
-            const node = this.children[id]
-            bounds.x = node.rect.x > bounds.x ? node.rect.x : bounds.x
-            bounds.y = node.rect.y > bounds.y ? node.rect.y : bounds.y
-        }
-        this.rect.w = bounds.x + 7
-        this.rect.h = bounds.y + 6
-    }
-
-    for (const cid in children) {
-        children[cid].parent = this
-        this.children.push(children[cid])
-        this.update()
-    }
-}
-
-// Graph
-// This should be moved to the Riven prototype, and all instances of 'RIVEN' be changed to 'this'.
-// The real artistry in this whole package is in this graph component, and the creation of glyphs.
-RIVEN.graph = () => {
-    const network = RIVEN.network
+Riven.prototype.graph = function() {
+    const { network } = this;
     const GRID_SIZE = 20
     const PORT_TYPES = {
         default: 0,
@@ -272,11 +54,11 @@ RIVEN.graph = () => {
     this.el.id = 'riven'
     document.body.appendChild(this.el)
 
-    const _routes = Object.keys(network).reduce((acc, val, id) => {
+    const _routes = Object.keys(network).reduce((acc, val) => {
         return `${acc}${drawRoutes(network[val])}`
     }, '')
 
-    const _nodes = Object.keys(network).reduce((acc, val, id) => {
+    const _nodes = Object.keys(network).reduce((acc, val) => {
         return `${acc}${drawNode(network[val])}`
     }, '')
 
@@ -309,7 +91,7 @@ RIVEN.graph = () => {
     }
 
     function drawPorts(node) {
-        return Object.keys(node.ports).reduce((acc, val, id) => {
+        return Object.keys(node.ports).reduce((acc, val) => {
             return `${acc}${drawPort(node.ports[val])}`
         }, '')
     }
@@ -559,4 +341,186 @@ RIVEN.graph = () => {
     }
 
     this.cursor.install(this)
+}
+
+// TODO: const Ø = new Riven();
+// This will need to rework the way that the custom
+// nodes in the nodes/ dir are added to the Riven lib.
+const RIVEN = new Riven();
+const Ø = RIVEN.selector.bind(RIVEN);
+
+// PORT prototype
+// A port has a host node, an ID and type,
+// and a list of routes. Routes are other ports.
+// When a Node is connected to another node, the node's
+// connection method will invoke the appropriate input port's
+// connect method, passing the appropriate output port from
+// the other node as the parameter: Node A{input port} -> Node B{output port}
+// Node's don't ever interact directly, everything happens through their ports.
+//
+// Example: When a Node `send`s a payload, it loops through its output port's routes,
+// and sends the payload to every output route's host node's `recieve` method.
+function Port(host, id, type = PORT_TYPES.default) {
+    this.host = host
+    this.id = id
+    this.type = type
+    this.routes = []
+
+    this.connect = function(port) {
+        if (!port) {
+            console.warn(`Unknown port from: ${this.host.id}`);
+            return
+        }
+        this.routes.push(port)
+    }
+}
+
+// NODE prototype
+// A Node contains a set of ports, identifying data, and utilities for displaying the node on the graph.
+// It also has a set of life cycle functions: create, request, answer, recieve, send etc.
+function Node(
+    id,
+    network,
+    rect = { x: 0, y: 0, w: 2, h: 2 }
+) {
+    this.id = id;           // This is how the node will be queried
+    this.rect = rect;       // Used when graphing the node
+    this.parent = null;
+    this.children = [];
+    this.label = id;        // Label text displayed when graphing the node
+    this.name = this.constructor.name.toLowerCase();
+    this.glyph = 'M155,65 A90,90 0 0,1 245,155 A90,90 0 0,1 155,245 A90,90 0 0,1 65,155 A90,90 0 0,1 155,65 Z';
+    this.ports = {
+        input: new Port(this, 'in', PORT_TYPES.input),
+        output: new Port(this, 'out', PORT_TYPES.output),
+        answer: new Port(this, 'answer', PORT_TYPES.answer),
+        request: new Port(this, 'request', PORT_TYPES.request)
+    };
+
+    // Creating a Node will add it to the selector's network,
+    // as well as define it's position (only used when graphing),
+    // it's special Type (required for any functionality beyond pass thru),
+    // and pass any other parameters to the new Type.
+    this.create = function(
+        pos = { x: 0, y: 0 },
+        Type,
+        ...params
+    ) {
+        if (!Type) {
+            console.warn(`Unknown NodeType for #${this.id}`);
+            return this;
+        }
+
+        // Assign the new x and y values to the rect for graphing
+        this.rect = {
+            ...this.rect,
+            ...pos
+        };
+
+        const node = new Type(this.id, this.rect, ...params);
+
+        network.add(node);
+        return node;
+    }
+
+    // CONNECT
+
+    this.connect = function(q, syphon) {
+        if (q instanceof Array) {
+            for (const id in q) {
+                this.connect(q[id], syphon)
+            }
+        } else if (Ø(q)) {
+            const port = syphon ? this.ports.request : this.ports.output;
+            const target = syphon ? Ø(q).ports.answer : Ø(q).ports.input;
+
+            if (!port) {
+                console.warn(`Unknown: ${q}`);
+                return;
+            }
+
+            port.connect(target)
+        } else {
+            console.warn(`Unknown ${q}`)
+        }
+    }
+
+    this.syphon = function(q) {
+        this.connect(q, true)
+    }
+
+    this.bind = function(q) {
+        this.connect(q)
+        this.syphon(q)
+    }
+
+    // SEND/RECEIVE
+    // By default will pass payload,
+    // a reference to this node,
+    // and the current route to the route's host's recieve function.
+    this.send = function(payload) {
+        for (const routeId in this.ports.output.routes) {
+            const route = this.ports.output.routes[routeId]
+            if (!route) {
+                continue
+            }
+            route.host.receive(payload, this, route)
+        }
+    }
+
+    // By default will pass q, origin, and route
+    // to all output ports.
+    this.receive = function(q, origin, route) {
+        const port = this.ports.output
+        for (const routeId in port.routes) {
+            const r = port.routes[routeId]
+            if (r) {
+                route.host.receive(q, origin, route);
+            }
+        }
+    }
+
+    this.bang = function() {
+        this.send(true)
+    }
+
+    // REQUEST/ANSWER
+
+    this.request = function(q) {
+        const payload = {}
+        for (const routeId in this.ports.request.routes) {
+            const route = this.ports.request.routes[routeId]
+            if (!route) {
+                continue
+            }
+            const answer = route.host.answer(q, this, route)
+            if (!answer) {
+                continue
+            }
+            payload[route.host.id] = answer
+        }
+        return payload
+    }
+
+    // By default, this will also get passed the origin node
+    // and the route from the origin node's request function.
+    this.answer = function(q) {
+        return this.request(q)
+    }
+
+    // Target
+
+    this.signal = function(target) {
+        for (const portId in this.ports) {
+            const port = this.ports[portId]
+            for (const routeId in port.routes) {
+                const route = port.routes[routeId]
+                if (!route || !route.host || route.host.id !== target.toLowerCase()) {
+                    continue
+                }
+                return route.host
+            }
+        }
+        return null
+    }
 }
