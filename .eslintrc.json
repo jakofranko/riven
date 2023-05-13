@@ -8,6 +8,9 @@
         "ecmaVersion": "latest",
         "sourceType": "module"
     },
+    "globals": {
+        "require": "readonly"
+    },
     "rules": {
         "semi": ["error", "always"]
     }

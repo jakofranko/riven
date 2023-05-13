@@ -10,6 +10,9 @@
   "version": "0.1.0",
   "main": "scripts/riven.js",
   "scripts": {
+    "build": "esbuild src/js/examples/math.js src/js/examples/mesh.js src/js/examples/conditional.js src/css/main.css --bundle --loader:.ttf=file --outdir=public",
+    "serve": "http-server",
+    "start": "npm run build && npm run serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,6 +34,8 @@
   },
   "homepage": "https://github.com/jakofranko/riven#readme",
   "devDependencies": {
-    "eslint": "^8.40.0"
+    "esbuild": "0.17.19",
+    "eslint": "^8.40.0",
+    "http-server": "^14.1.1"
   }
 }
