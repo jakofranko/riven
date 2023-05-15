@@ -11,6 +11,7 @@
   "main": "scripts/riven.js",
   "scripts": {
     "build": "esbuild src/js/examples/math.js src/js/examples/mesh.js src/js/examples/conditional.js src/css/main.css --bundle --loader:.ttf=file --outdir=public",
+    "build:watch": "esbuild src/js/examples/math.js src/js/examples/mesh.js src/js/examples/conditional.js src/css/main.css --bundle --loader:.ttf=file --outdir=public --watch",
     "serve": "http-server",
     "start": "npm run build && npm run serve",
     "test": "echo \"Error: no test specified\" && exit 1"
