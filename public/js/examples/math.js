@@ -443,13 +443,23 @@
   function Add(id, riven, rect) {
     Node.call(this, id, riven, rect);
     this.glyph = "M60,60 L60,60 L150,120 L240,120 M60,150 L60,150 L240,150 M60,240 L60,240 L150,180 L240,180";
-    this.add = function() {
+    this.add = function(initialValue = 0) {
       return Object.values(this.request()).reduce((acc, val) => {
         return acc + val;
-      }, 0);
+      }, initialValue);
     };
-    this.receive = function() {
-      this.send(this.add());
+    this.receive = function(payload) {
+      let p;
+      if (typeof payload != "number" && typeof payload != "string") {
+        p = null;
+      } else {
+        p = Number(payload);
+      }
+      if (Number.isNaN(p)) {
+        console.error(`Recieved ${payload} to an Add node, which is not a number`);
+        p = null;
+      }
+      this.send(this.add(p));
     };
     this.answer = function() {
       return this.add();
@@ -473,6 +483,9 @@
   \u00D8("int1").create({ x: 12, y: 8 }, Value, 3);
   \u00D8("int2").create({ x: 16, y: 8 }, Value, 5);
   \u00D8("print_int").create({ x: 20, y: 4 }, Print);
+  \u00D8("add2").create({ x: 26, y: 4 }, Add);
+  \u00D8("int3").create({ x: 26, y: 8 }, Value, 22);
+  \u00D8("print_int2").create({ x: 32, y: 8 }, Print);
   \u00D8("concat").create({ x: 14, y: 12 }, Concat);
   \u00D8("str1").create({ x: 12, y: 16 }, Value, "hello");
   \u00D8("str2").create({ x: 16, y: 16 }, Value, "world");
@@ -480,6 +493,9 @@
   \u00D8("bang").connect(["add", "concat"]);
   \u00D8("add").connect(["print_int"]);
   \u00D8("add").syphon(["int1", "int2"]);
+  \u00D8("print_int").connect(["add2"]);
+  \u00D8("add2").syphon(["int3"]);
+  \u00D8("add2").connect(["print_int2"]);
   \u00D8("concat").syphon(["str1", "str2"]);
   \u00D8("concat").connect(["print_str"]);
   \u00D8("bang").bang();
