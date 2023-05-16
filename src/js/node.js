@@ -57,9 +57,9 @@ export default function Node(
             for (const id in q) {
                 this.connect(q[id], syphon);
             }
-        } else if (this.riven.selector(q)) {
+        } else if (this.riven.Ø(q)) {
             const port = syphon ? this.ports.request : this.ports.output;
-            const target = syphon ? this.riven.selector(q).ports.answer : this.riven.selector(q).ports.input;
+            const target = syphon ? this.riven.Ø(q).ports.answer : this.riven.Ø(q).ports.input;
 
             if (!port) {
                 console.warn(`Unknown: ${q}`);

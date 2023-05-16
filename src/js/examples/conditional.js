@@ -1,11 +1,12 @@
 import Riven from '../riven.js';
-import Value from '../nodes/value.js';
-import Equals from '../nodes/equals.js';
-import Console from '../nodes/console.js';
-import Bang from '../nodes/bang.js';
 
-const RIVEN = new Riven();
-const Ø = RIVEN.selector.bind(RIVEN);
+const { Ø, graph, lib } = new Riven();
+const {
+    Value,
+    Equals,
+    Console,
+    Bang
+} = lib;
 
 Ø("val1").create({x:4, y:10}, Value, "blue");
 Ø("equals").create({x:10, y:10}, Equals);
@@ -26,4 +27,4 @@ const Ø = RIVEN.selector.bind(RIVEN);
 
 Ø("val1").send("blue");
 
-RIVEN.graph();
+graph();

@@ -12,8 +12,8 @@ export default function Mesh(id, riven, rect, children, entry, exit) {
   this.ports.entry = new Port(this, 'entry', PORT_TYPES.entry);
   this.ports.exit = new Port(this, 'exit', PORT_TYPES.exit);
 
-  if (riven.network[entry]) { this.ports.entry.connect(riven.selector(entry).ports.input); }
-  if (riven.network[exit]) { riven.selector(exit).ports.output.connect(this.ports.exit); }
+  if (riven.network[entry]) { this.ports.entry.connect(riven.Ø(entry).ports.input); }
+  if (riven.network[exit]) { riven.Ø(exit).ports.output.connect(this.ports.exit); }
 
   this.update = function () {
     const bounds = { x: 0, y: 0 };

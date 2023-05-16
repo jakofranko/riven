@@ -1,4 +1,28 @@
-(() => {
+var Riven = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // src/js/riven.js
+  var riven_exports = {};
+  __export(riven_exports, {
+    default: () => riven_default
+  });
+
   // src/js/constants.js
   var PORT_TYPES = {
     default: 0,
@@ -302,7 +326,6 @@
   // src/js/riven.js
   function Riven() {
     this.lib = {
-      Node,
       Add,
       Subtract,
       Bang,
@@ -597,44 +620,5 @@
     this.network[node.id] = node;
   };
   var riven_default = Riven;
-
-  // src/js/examples/math.js
-  var { \u00D8, graph, lib } = new riven_default();
-  var {
-    Node: Node2,
-    Add: Add2,
-    Value: Value2,
-    Print: Print2,
-    Subtract: Subtract2,
-    Concat: Concat2
-  } = lib;
-  \u00D8("bang").create({ x: 4, y: 8 }, Node2);
-  \u00D8("add").create({ x: 14, y: 4 }, Add2);
-  \u00D8("int1").create({ x: 12, y: 8 }, Value2, 3);
-  \u00D8("int2").create({ x: 16, y: 8 }, Value2, 5);
-  \u00D8("print_int").create({ x: 20, y: 4 }, Print2);
-  \u00D8("add2").create({ x: 26, y: 4 }, Add2);
-  \u00D8("int3").create({ x: 26, y: 8 }, Value2, 22);
-  \u00D8("print_int2").create({ x: 32, y: 8 }, Print2);
-  \u00D8("sub").create({ x: 36, y: 8 }, Subtract2);
-  \u00D8("int4").create({ x: 36, y: 12 }, Value2, 4);
-  \u00D8("print_int3").create({ x: 40, y: 8 }, Print2);
-  \u00D8("concat").create({ x: 14, y: 12 }, Concat2);
-  \u00D8("str1").create({ x: 12, y: 16 }, Value2, "hello");
-  \u00D8("str2").create({ x: 16, y: 16 }, Value2, "world");
-  \u00D8("print_str").create({ x: 20, y: 12 }, Print2);
-  \u00D8("bang").connect(["add", "concat"]);
-  \u00D8("add").connect(["print_int"]);
-  \u00D8("add").syphon(["int1", "int2"]);
-  \u00D8("print_int").connect(["add2"]);
-  \u00D8("add2").syphon(["int3"]);
-  \u00D8("add2").connect(["print_int2"]);
-  \u00D8("print_int2").connect(["sub"]);
-  \u00D8("sub").connect(["print_int3"]);
-  \u00D8("sub").syphon(["int4"]);
-  \u00D8("add2").connect(["print_int2"]);
-  \u00D8("concat").syphon(["str1", "str2"]);
-  \u00D8("concat").connect(["print_str"]);
-  \u00D8("bang").bang();
-  graph();
+  return __toCommonJS(riven_exports);
 })();

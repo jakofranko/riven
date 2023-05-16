@@ -1,13 +1,14 @@
 import Riven from '../riven.js';
-import Node from '../node.js';
-import Print from '../nodes/print.js';
-import Value from '../nodes/value.js';
-import Add from '../nodes/add.js';
-import Subtract from '../nodes/subtract.js';
-import Concat from '../nodes/concat.js';
 
-const RIVEN = new Riven();
-const Ø = RIVEN.selector.bind(RIVEN);
+const { Ø, graph, lib } = new Riven();
+const {
+    Node,
+    Add,
+    Value,
+    Print,
+    Subtract,
+    Concat
+} = lib;
 
 Ø("bang").create({x:4,y:8}, Node);
 
@@ -45,4 +46,4 @@ const Ø = RIVEN.selector.bind(RIVEN);
 
 Ø("bang").bang();
 
-RIVEN.graph();
+graph();

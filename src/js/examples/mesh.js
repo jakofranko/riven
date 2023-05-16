@@ -1,12 +1,13 @@
 import Riven from '../riven.js';
-import Node from '../node.js';
-import Print from '../nodes/print.js';
-import Value from '../nodes/value.js';
-import Add from '../nodes/add.js';
-import Mesh from '../nodes/mesh.js';
 
-const RIVEN = new Riven();
-const Ø = RIVEN.selector.bind(RIVEN);
+const { Ø, graph, lib } = new Riven();
+const {
+    Node,
+    Mesh,
+    Add,
+    Value,
+    Print
+} = lib;
 
 Ø("bang").create({x:2,y:2}, Node);
 Ø("mesh").create({x:8,y:0}, Mesh, [
@@ -20,4 +21,5 @@ const Ø = RIVEN.selector.bind(RIVEN);
 Ø("mesh").connect("output");
 
 Ø("bang").send("foo bar");
-RIVEN.graph();
+
+graph();
