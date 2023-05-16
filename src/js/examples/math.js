@@ -3,6 +3,7 @@ import Node from '../node.js';
 import Print from '../nodes/print.js';
 import Value from '../nodes/value.js';
 import Add from '../nodes/add.js';
+import Subtract from '../nodes/subtract.js';
 import Concat from '../nodes/concat.js';
 
 const RIVEN = new Riven();
@@ -18,6 +19,9 @@ const Ø = RIVEN.selector.bind(RIVEN);
 Ø("add2").create({ x: 26, y: 4 }, Add);
 Ø("int3").create({ x: 26, y: 8 }, Value, 22);
 Ø("print_int2").create({ x: 32, y: 8 }, Print);
+Ø("sub").create({ x: 36, y: 8 }, Subtract);
+Ø("int4").create({ x: 36, y: 12 }, Value, 4);
+Ø("print_int3").create({ x: 40, y: 8 }, Print);
 
 // Str nodes
 Ø("concat").create({x:14,y:12}, Concat);
@@ -30,6 +34,10 @@ const Ø = RIVEN.selector.bind(RIVEN);
 Ø("add").syphon(["int1","int2"]);
 Ø("print_int").connect(["add2"]);
 Ø("add2").syphon(["int3"]);
+Ø("add2").connect(["print_int2"]);
+Ø("print_int2").connect(["sub"]);
+Ø("sub").connect(["print_int3"]);
+Ø("sub").syphon(["int4"]);
 Ø("add2").connect(["print_int2"]);
 Ø("concat").syphon(["str1","str2"]);
 Ø("concat").connect(["print_str"]);
