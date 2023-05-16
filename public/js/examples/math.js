@@ -466,6 +466,33 @@
     };
   }
 
+  // src/js/nodes/subtract.js
+  function Subtract(id, riven, rect) {
+    Node.call(this, id, riven, rect);
+    this.glyph = "M60,150 L60,150 L240,150 M60,180 L60,180 L180,180 M60,120 L60,120 L180,120";
+    this.subtract = function(initialValue = 0) {
+      return Object.values(this.request()).reduce((acc, val) => {
+        return acc - val;
+      }, initialValue);
+    };
+    this.receive = function(payload) {
+      let p;
+      if (typeof payload != "number" && typeof payload != "string") {
+        p = null;
+      } else {
+        p = Number(payload);
+      }
+      if (Number.isNaN(p)) {
+        console.error(`Recieved ${payload} to an Subtract node, which is not a number`);
+        p = null;
+      }
+      this.send(this.subtract(p));
+    };
+    this.answer = function() {
+      return this.subtract();
+    };
+  }
+
   // src/js/nodes/concat.js
   function Concat(id, riven, rect) {
     Node.call(this, id, riven, rect);
@@ -486,6 +513,9 @@
   \u00D8("add2").create({ x: 26, y: 4 }, Add);
   \u00D8("int3").create({ x: 26, y: 8 }, Value, 22);
   \u00D8("print_int2").create({ x: 32, y: 8 }, Print);
+  \u00D8("sub").create({ x: 36, y: 8 }, Subtract);
+  \u00D8("int4").create({ x: 36, y: 12 }, Value, 4);
+  \u00D8("print_int3").create({ x: 40, y: 8 }, Print);
   \u00D8("concat").create({ x: 14, y: 12 }, Concat);
   \u00D8("str1").create({ x: 12, y: 16 }, Value, "hello");
   \u00D8("str2").create({ x: 16, y: 16 }, Value, "world");
@@ -495,6 +525,10 @@
   \u00D8("add").syphon(["int1", "int2"]);
   \u00D8("print_int").connect(["add2"]);
   \u00D8("add2").syphon(["int3"]);
+  \u00D8("add2").connect(["print_int2"]);
+  \u00D8("print_int2").connect(["sub"]);
+  \u00D8("sub").connect(["print_int3"]);
+  \u00D8("sub").syphon(["int4"]);
   \u00D8("add2").connect(["print_int2"]);
   \u00D8("concat").syphon(["str1", "str2"]);
   \u00D8("concat").connect(["print_str"]);
