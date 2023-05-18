@@ -10,9 +10,13 @@ export default function Add(id, riven, rect) {
   };
 
   this.receive = function (payload) {
-    // Don't pass anything beyond a string or number to `add`
+    // Don't pass anything beyond a string or number to `add`.
+    // If the payload is a boolean, simply pass through, since
+    // it is likely being initiated with a `bang` command.
     let p;
-    if (typeof payload != 'number' && typeof payload != 'string') {
+    if (typeof payload === 'boolean') {
+        p = 0;
+    } else if (typeof payload != 'number' && typeof payload != 'string') {
       p = null;
     } else {
       p = Number(payload);

@@ -21,13 +21,13 @@
 /* src/css/fonts.css */
 @font-face {
   font-family: "input_mono_regular";
-  src: url(../assets/input_mono_regular-MO47XUXR.ttf) format("truetype");
+  src: url(./assets/input_mono_regular-MO47XUXR.ttf) format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
   font-family: "input_mono_medium";
-  src: url(../assets/input_mono_medium-SIT6A3ID.ttf) format("truetype");
+  src: url(./assets/input_mono_medium-SIT6A3ID.ttf) format("truetype");
   font-weight: normal;
   font-style: normal;
 }

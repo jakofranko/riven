@@ -354,4 +354,6 @@ Riven.prototype.add = function(node) {
     this.network[node.id] = node;
 };
 
+globalThis.Riven = Riven;
+
 export default Riven;
