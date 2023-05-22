@@ -8,3 +8,5 @@ export const PORT_TYPES = {
     entry: 5,
     exit: 6
 };
+
+export const GRID_SIZE = 20;

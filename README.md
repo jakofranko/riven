@@ -27,7 +27,7 @@ If you would like to use Riven directly in your browser as-is, simply download `
 </html>
 ```
 
-This will give you access to the `Ø` selector, the `graph` function which will visualize your Riven application, and `lib`, which right now contains the built-in Node varieties. Check out the [examples in the public](https://github.com/jakofranko/riven/tree/master/public) for some Riven application examples. Details on these elements are below.
+This will give you access to the `Ø` selector, the `graph` function which will visualize your Riven application, and `lib`, which right now contains the built-in Node varieties. Check out the [examples in the public folder](https://github.com/jakofranko/riven/tree/master/public) for some Riven application examples. Details on these elements are below.
 
 ### As an npm package
 

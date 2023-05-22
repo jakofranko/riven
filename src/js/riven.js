@@ -12,6 +12,10 @@ import {
     Print,
     Value
 } from './nodes';
+import {
+    GRID_SIZE,
+    PORT_TYPES
+} from './constants';
 
 // Creates a new instance of Riven.
 // An instance of Riven contains a library of default nodes, and the network of nodes,
@@ -43,22 +47,16 @@ function Riven() {
         return node;
     };
 
-    this.graph = function() {
-        const { network } = self;
-        const GRID_SIZE = 20;
-        const PORT_TYPES = {
-            default: 0,
-            input: 1,
-            output: 2,
-            request: 3,
-            answer: 4,
-            entry: 5,
-            exit: 6
-        };
+    this.graph = function(parentId) {
+        const { network, el } = self;
 
-        self.el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        self.el.id = 'riven';
-        document.body.appendChild(self.el);
+        if (!el) {
+            self.el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            self.el.id = 'riven';
+            parentId
+                ? document.getElementById(parentId).appendChild(self.el)
+                : document.body.appendChild(self.el);
+        }
 
         const _routes = Object.keys(network).reduce((acc, val) => {
             return `${acc}${drawRoutes(network[val])}`;
@@ -297,22 +295,22 @@ function Riven() {
             install: function(host) {
                 this.host = host;
                 this.target = document.getElementById('viewport');
-                document.body.appendChild(this.el);
-                document.addEventListener('mousedown', (e) => {
+                self.el.appendChild(this.el);
+                self.el.addEventListener('mousedown', (e) => {
                     this.touch({
                         x: e.clientX,
                         y: e.clientY
                     }, true);
                     e.preventDefault();
                 });
-                document.addEventListener('mousemove', (e) => {
+                self.el.addEventListener('mousemove', (e) => {
                     this.touch({
                         x: e.clientX,
                         y: e.clientY
                     }, false);
                     e.preventDefault();
                 });
-                document.addEventListener('mouseup', (e) => {
+                self.el.addEventListener('mouseup', (e) => {
                     this.touch({
                         x: e.clientX,
                         y: e.clientY
@@ -322,7 +320,7 @@ function Riven() {
             },
             update: function() {
                 this.target.style.transform = `translate(${parseInt(this.offset.x)}px,${parseInt(this.offset.y)}px)`;
-                document.body.style.backgroundPosition = `${parseInt(this.offset.x * 0.75)}px ${parseInt(this.offset.y * 0.75)}px`;
+                self.el.style.backgroundPosition = `${parseInt(this.offset.x * 0.75)}px ${parseInt(this.offset.y * 0.75)}px`;
             },
             touch: function(pos, click = null) {
                 if (click === true) {

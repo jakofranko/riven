@@ -9,6 +9,7 @@
     entry: 5,
     exit: 6
   };
+  var GRID_SIZE = 20;
 
   // src/js/port.js
   function Port(host, id, type = PORT_TYPES.default) {
@@ -143,7 +144,9 @@
     };
     this.receive = function(payload) {
       let p;
-      if (typeof payload != "number" && typeof payload != "string") {
+      if (typeof payload === "boolean") {
+        p = 0;
+      } else if (typeof payload != "number" && typeof payload != "string") {
         p = null;
       } else {
         p = Number(payload);
@@ -170,7 +173,9 @@
     };
     this.receive = function(payload) {
       let p;
-      if (typeof payload != "number" && typeof payload != "string") {
+      if (typeof payload === "boolean") {
+        p = 0;
+      } else if (typeof payload != "number" && typeof payload != "string") {
         p = null;
       } else {
         p = Number(payload);
@@ -322,21 +327,13 @@
       }
       return node;
     };
-    this.graph = function() {
-      const { network } = self;
-      const GRID_SIZE = 20;
-      const PORT_TYPES2 = {
-        default: 0,
-        input: 1,
-        output: 2,
-        request: 3,
-        answer: 4,
-        entry: 5,
-        exit: 6
-      };
-      self.el = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      self.el.id = "riven";
-      document.body.appendChild(self.el);
+    this.graph = function(parentId) {
+      const { network, el } = self;
+      if (!el) {
+        self.el = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        self.el.id = "riven";
+        parentId ? document.getElementById(parentId).appendChild(self.el) : document.body.appendChild(self.el);
+      }
       const _routes = Object.keys(network).reduce((acc, val) => {
         return `${acc}${drawRoutes(network[val])}`;
       }, "");
@@ -387,15 +384,15 @@
       }
       function drawConnection(a, b) {
         if (isBidirectional(a.host, b.host)) {
-          return a.type !== PORT_TYPES2.output ? drawConnectionBidirectional(a, b) : "";
+          return a.type !== PORT_TYPES.output ? drawConnectionBidirectional(a, b) : "";
         }
-        if (a.type === PORT_TYPES2.entry) {
+        if (a.type === PORT_TYPES.entry) {
           return drawConnectionEntry(a, b);
         }
-        if (b.type === PORT_TYPES2.exit) {
+        if (b.type === PORT_TYPES.exit) {
           return drawConnectionExit(a, b);
         }
-        return a.type === PORT_TYPES2.output || a.type === PORT_TYPES2.output ? drawConnectionOutput(a, b) : drawConnectionRequest(a, b);
+        return a.type === PORT_TYPES.output || a.type === PORT_TYPES.output ? drawConnectionOutput(a, b) : drawConnectionRequest(a, b);
       }
       function isBidirectional(a, b) {
         for (const id in a.ports.output.routes) {
@@ -477,22 +474,22 @@
           x: 0,
           y: 0
         };
-        if (port.type === PORT_TYPES2.output || port.type === PORT_TYPES2.exit) {
+        if (port.type === PORT_TYPES.output || port.type === PORT_TYPES.exit) {
           offset = {
             x: rect.w,
             y: rect.h - GRID_SIZE * 1.5
           };
-        } else if (port.type === PORT_TYPES2.input || port.type === PORT_TYPES2.entry) {
+        } else if (port.type === PORT_TYPES.input || port.type === PORT_TYPES.entry) {
           offset = {
             x: 0,
             y: GRID_SIZE / 2
           };
-        } else if (port.type === PORT_TYPES2.answer) {
+        } else if (port.type === PORT_TYPES.answer) {
           offset = {
             x: GRID_SIZE,
             y: -GRID_SIZE * 0.5
           };
-        } else if (port.type === PORT_TYPES2.request) {
+        } else if (port.type === PORT_TYPES.request) {
           offset = {
             x: rect.w - GRID_SIZE,
             y: rect.h - GRID_SIZE / 2
@@ -542,22 +539,22 @@
         install: function(host) {
           this.host = host;
           this.target = document.getElementById("viewport");
-          document.body.appendChild(this.el);
-          document.addEventListener("mousedown", (e) => {
+          self.el.appendChild(this.el);
+          self.el.addEventListener("mousedown", (e) => {
             this.touch({
               x: e.clientX,
               y: e.clientY
             }, true);
             e.preventDefault();
           });
-          document.addEventListener("mousemove", (e) => {
+          self.el.addEventListener("mousemove", (e) => {
             this.touch({
               x: e.clientX,
               y: e.clientY
             }, false);
             e.preventDefault();
           });
-          document.addEventListener("mouseup", (e) => {
+          self.el.addEventListener("mouseup", (e) => {
             this.touch({
               x: e.clientX,
               y: e.clientY
@@ -567,7 +564,7 @@
         },
         update: function() {
           this.target.style.transform = `translate(${parseInt(this.offset.x)}px,${parseInt(this.offset.y)}px)`;
-          document.body.style.backgroundPosition = `${parseInt(this.offset.x * 0.75)}px ${parseInt(this.offset.y * 0.75)}px`;
+          self.el.style.backgroundPosition = `${parseInt(this.offset.x * 0.75)}px ${parseInt(this.offset.y * 0.75)}px`;
         },
         touch: function(pos, click = null) {
           if (click === true) {
